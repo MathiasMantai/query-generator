@@ -19,6 +19,7 @@ func main() {
 	myWindow := myApp.NewWindow("Query Generator")
 	size := fyne.NewSize(800, 600)
 	myWindow.Resize(size)
+	myWindow.SetFixedSize(true)
 
 	entry := widget.NewEntry()
 	entry.MultiLine = true
@@ -39,6 +40,11 @@ func main() {
 				if err != nil {
 					return
 				}
+
+				if writer == nil {
+					// Dialog was canceled
+					return
+				}
 				defer writer.Close()
 
 				content := src.Process(text, toInsertBefore, toInsertAfter, excludeLastElement)
@@ -49,6 +55,7 @@ func main() {
 				}
 			}, myWindow)
 			fileDialog.SetFilter(storage.NewExtensionFileFilter([]string{".txt", ".csv"}))
+			fileDialog.Resize(fyne.NewSize(800,600))
 			fileDialog.Show()
 		}
 	})
@@ -96,6 +103,6 @@ func openFileDialog(window fyne.Window, entry *widget.Entry) {
 	}, window)
 
 	fileDialog.SetFilter(storage.NewExtensionFileFilter([]string{".txt", ".csv"})) // You can set filters if needed
-
+	fileDialog.Resize(fyne.NewSize(800,600))
 	fileDialog.Show()
 }
