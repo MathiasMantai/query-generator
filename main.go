@@ -56,9 +56,11 @@ func main() {
 	//submit button to generate queries
 	submit := widget.NewButton("Generate Query", func() {
 		text := entry.Text
+		queryString := query.Text
 		toInsertBefore := insertBeforeInput.Text
 		toInsertAfter := insertAfterInput.Text
 		excludeLastElement := ignoreLastElement.Checked
+		useAsInClause := useForInClause.Checked
 
 		if strings.TrimSpace(text) != "" {
 			fileDialog := dialog.NewFileSave(func(writer fyne.URIWriteCloser, err error) {
@@ -72,7 +74,7 @@ func main() {
 				}
 				defer writer.Close()
 
-				content := src.Process(text, toInsertBefore, toInsertAfter, excludeLastElement)
+				content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause)
 
 				_, err2 := writer.Write([]byte(content))
 				if err2 != nil {
@@ -88,10 +90,12 @@ func main() {
 	//process button to generate queries and display in output input field
 	processButton := widget.NewButton("Process Query", func() {
 		text := entry.Text
+		queryString := query.Text
 		toInsertBefore := insertBeforeInput.Text
 		toInsertAfter := insertAfterInput.Text
 		excludeLastElement := ignoreLastElement.Checked
-		content := src.Process(text, toInsertBefore, toInsertAfter, excludeLastElement)
+		useAsInClause := useForInClause.Checked
+		content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause)
 		output.SetText(content)
 	})
 
@@ -115,12 +119,12 @@ func main() {
 				layout.NewFormLayout(),
 				widget.NewLabel("Insert After every Element:"),
 				insertAfterInput,
-				widget.NewLabel("Ignore Last Element:"),
+				widget.NewLabel(""),
 				ignoreLastElement,
 			),
 			container.New(
 				layout.NewFormLayout(),
-				widget.NewLabel("Use For IN Clause:"),
+				widget.NewLabel(""),
 				useForInClause,
 			),
 		),
@@ -129,7 +133,10 @@ func main() {
 		widget.NewLabel(""),
 		processButton,
 		widget.NewLabel(""),
-		output,
+		container.New(
+			layout.NewMaxLayout(),
+			output,
+		),
 	)
 
 	myWindow.SetContent(grid)
