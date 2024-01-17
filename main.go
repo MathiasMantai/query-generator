@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
-
+	"fyne.io/fyne/v2/layout"
 	"github.com/mathiasmantai/query-generator/src"
 )
 
@@ -17,24 +17,49 @@ func main() {
 	myApp := app.New()
 
 	myWindow := myApp.NewWindow("Query Generator")
-	size := fyne.NewSize(800, 600)
+	size := fyne.NewSize(850, 600)
 	myWindow.Resize(size)
 	myWindow.SetFixedSize(true)
 
+	//multiline input for data
 	entry := widget.NewEntry()
 	entry.MultiLine = true
 
+	//input for query
 	query := widget.NewEntry()
 
-	openFileDialogButton := widget.NewButton("Load File", func() {
+	openFileDialogButton := widget.NewButton("Load Data from File", func() {
 		openFileDialog(myWindow, entry)
 	})
 
+	//insertBefore input
+	insertBeforeInput := widget.NewEntry()
+
+    //insertAfter input
+    insertAfterInput := widget.NewEntry()
+
+	//ignore last element
+	ignoreLastElement := widget.NewCheck("Ignore Last Element", func(value bool) {
+
+    })
+
+	//use data for IN clause
+	useForInClause := widget.NewCheck("Use Data for IN clause", func(value bool) {
+
+    })
+
+
+	output := widget.NewEntry()
+	output.MultiLine = true
+
+
+	//submit button to generate queries
 	submit := widget.NewButton("Generate Query", func() {
 		text := entry.Text
-		toInsertBefore := "\""
-		toInsertAfter := "\","
-		excludeLastElement := true
+		toInsertBefore := insertBeforeInput.Text
+		toInsertAfter := insertAfterInput.Text
+		excludeLastElement := ignoreLastElement.Checked
+
 		if strings.TrimSpace(text) != "" {
 			fileDialog := dialog.NewFileSave(func(writer fyne.URIWriteCloser, err error) {
 				if err != nil {
@@ -55,23 +80,59 @@ func main() {
 				}
 			}, myWindow)
 			fileDialog.SetFilter(storage.NewExtensionFileFilter([]string{".txt", ".csv"}))
-			fileDialog.Resize(fyne.NewSize(800,600))
+			fileDialog.Resize(fyne.NewSize(850,600))
 			fileDialog.Show()
 		}
 	})
 
-	test := widget.NewEntry()
+	//process button to generate queries and display in output input field
+	processButton := widget.NewButton("Process Query", func() {
+		text := entry.Text
+		toInsertBefore := insertBeforeInput.Text
+		toInsertAfter := insertAfterInput.Text
+		excludeLastElement := ignoreLastElement.Checked
+		content := src.Process(text, toInsertBefore, toInsertAfter, excludeLastElement)
+		output.SetText(content)
+	})
 
 
-
-	content := container.NewVBox(
+	grid := container.New(layout.NewFormLayout(),
+		widget.NewLabel("Query:"),
 		query,
+		widget.NewLabel("Data:"),
+        entry,
+		widget.NewLabel(""),
 		openFileDialogButton,
-		entry,
-		container.NewHBox(test, submit),
+		widget.NewLabel("Options:"),
+		container.New(
+			layout.NewGridLayout(2),
+			container.New(
+				layout.NewFormLayout(),
+				widget.NewLabel("Insert Before every Element:"),
+				insertBeforeInput,
+			),
+			container.New(
+				layout.NewFormLayout(),
+				widget.NewLabel("Insert After every Element:"),
+				insertAfterInput,
+				widget.NewLabel("Ignore Last Element:"),
+				ignoreLastElement,
+			),
+			container.New(
+				layout.NewFormLayout(),
+				widget.NewLabel("Use For IN Clause:"),
+				useForInClause,
+			),
+		),
+		widget.NewLabel(""),
+        submit,
+		widget.NewLabel(""),
+		processButton,
+		widget.NewLabel(""),
+		output,
 	)
 
-	myWindow.SetContent(content)
+	myWindow.SetContent(grid)
 	myWindow.ShowAndRun()
 }
 
@@ -103,6 +164,6 @@ func openFileDialog(window fyne.Window, entry *widget.Entry) {
 	}, window)
 
 	fileDialog.SetFilter(storage.NewExtensionFileFilter([]string{".txt", ".csv"})) // You can set filters if needed
-	fileDialog.Resize(fyne.NewSize(800,600))
+	fileDialog.Resize(fyne.NewSize(850,600))
 	fileDialog.Show()
 }
