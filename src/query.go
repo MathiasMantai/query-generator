@@ -22,13 +22,17 @@ func sanitizeLineBreaks(value string) string {
 }
 
 //process data
-func Process(data string, query string, toInsertBefore string, toInsertAfter string, excludeLastElement bool, useAsIn bool) string {
+func Process(data string, query string, toInsertBefore string, toInsertAfter string, excludeLastElement bool, useAsIn bool, replaceDoubleQuotes bool) string {
 	processed_data := ""
 
 	dataLines := strings.Split(data, "\n")
 	
 	if !useAsIn {
 		for i := range dataLines {
+			if replaceDoubleQuotes {
+				dataLines[i] = strings.Replace(dataLines[i], "\"", "'", -1)
+			}
+
 			line := dataLines[i]
 			line = sanitizeLineBreaks(line)
 
@@ -38,7 +42,7 @@ func Process(data string, query string, toInsertBefore string, toInsertAfter str
 
 			line = InsertBefore(line, toInsertBefore)
 
-			processed_data = processed_data + line + "\n"
+			processed_data = processed_data + strings.Replace(query, "?", line, 1) + "\n"
 		}
 	} else {
 		//prepare data for in clause
@@ -47,6 +51,9 @@ func Process(data string, query string, toInsertBefore string, toInsertAfter str
             line := dataLines[i]
             line = sanitizeLineBreaks(line)
 
+			if replaceDoubleQuotes {
+				line = strings.Replace(line, "\"", "'", -1)
+			}
 
             line = InsertAfter(line, toInsertAfter)
 
@@ -54,7 +61,6 @@ func Process(data string, query string, toInsertBefore string, toInsertAfter str
 				line = line[:len(line) - 2]
 			}
 
-			
 
 			line = InsertBefore(line, toInsertBefore)
 			lines = lines + line

@@ -32,6 +32,9 @@ func main() {
 		openFileDialog(myWindow, entry)
 	})
 
+	// OPTIONS
+	
+
 	//insertBefore input
 	insertBeforeInput := widget.NewEntry()
 
@@ -48,7 +51,11 @@ func main() {
 
     })
 
+	replaceDoubleQuotes := widget.NewCheck("Replace Double Quotes with Single Quotes", func(value bool) {
 
+	})
+
+	//output
 	output := widget.NewEntry()
 	output.MultiLine = true
 
@@ -61,7 +68,8 @@ func main() {
 		toInsertAfter := insertAfterInput.Text
 		excludeLastElement := ignoreLastElement.Checked
 		useAsInClause := useForInClause.Checked
-
+		replaceDoubleQuotesValue := replaceDoubleQuotes.Checked
+		
 		if strings.TrimSpace(text) != "" {
 			fileDialog := dialog.NewFileSave(func(writer fyne.URIWriteCloser, err error) {
 				if err != nil {
@@ -74,7 +82,7 @@ func main() {
 				}
 				defer writer.Close()
 
-				content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause)
+				content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause, replaceDoubleQuotesValue)
 
 				_, err2 := writer.Write([]byte(content))
 				if err2 != nil {
@@ -95,7 +103,8 @@ func main() {
 		toInsertAfter := insertAfterInput.Text
 		excludeLastElement := ignoreLastElement.Checked
 		useAsInClause := useForInClause.Checked
-		content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause)
+		replaceDoubleQuotesValue := replaceDoubleQuotes.Checked
+		content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause, replaceDoubleQuotesValue)
 		output.SetText(content)
 	})
 
@@ -126,6 +135,8 @@ func main() {
 				layout.NewFormLayout(),
 				widget.NewLabel(""),
 				useForInClause,
+				widget.NewLabel(""),
+				replaceDoubleQuotes,
 			),
 		),
 		widget.NewLabel(""),
