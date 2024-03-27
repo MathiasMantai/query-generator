@@ -153,9 +153,6 @@ func main() {
 	myWindow.ShowAndRun()
 }
 
-func createLayout(window *fyne.Window) {
-
-}
 
 func openFileDialog(window fyne.Window, entry *widget.Entry) {
 	fileDialog := dialog.NewFileOpen(func(file fyne.URIReadCloser, err error) {
