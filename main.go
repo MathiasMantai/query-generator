@@ -58,6 +58,8 @@ func main() {
 	output := widget.NewEntry()
 	output.MultiLine = true
 
+	dataDelimiter := widget.NewEntry()
+
 
 	//submit button to generate queries
 	submit := widget.NewButton("Generate Query", func() {
@@ -68,6 +70,7 @@ func main() {
 		excludeLastElement := ignoreLastElement.Checked
 		useAsInClause := useForInClause.Checked
 		replaceDoubleQuotesValue := replaceDoubleQuotes.Checked
+		dataDelimiter := dataDelimiter.Text
 		
 		if strings.TrimSpace(text) != "" {
 			fileDialog := dialog.NewFileSave(func(writer fyne.URIWriteCloser, err error) {
@@ -81,7 +84,7 @@ func main() {
 				}
 				defer writer.Close()
 
-				content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause, replaceDoubleQuotesValue)
+				content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause, replaceDoubleQuotesValue, dataDelimiter)
 
 				_, err2 := writer.Write([]byte(content))
 				if err2 != nil {
@@ -94,6 +97,8 @@ func main() {
 		}
 	})
 
+
+
 	//process button to generate queries and display in output input field
 	processButton := widget.NewButton("Process Query", func() {
 		text := entry.Text
@@ -103,9 +108,12 @@ func main() {
 		excludeLastElement := ignoreLastElement.Checked
 		useAsInClause := useForInClause.Checked
 		replaceDoubleQuotesValue := replaceDoubleQuotes.Checked
-		content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause, replaceDoubleQuotesValue)
+		dataDelimiter := dataDelimiter.Text
+		content := src.Process(text, queryString, toInsertBefore, toInsertAfter, excludeLastElement, useAsInClause, replaceDoubleQuotesValue, dataDelimiter)
 		output.SetText(content)
 	})
+
+
 
 
 	grid := container.New(layout.NewFormLayout(),
@@ -136,6 +144,11 @@ func main() {
 				useForInClause,
 				widget.NewLabel(""),
 				replaceDoubleQuotes,
+			),
+			container.New(
+				layout.NewFormLayout(),
+				widget.NewLabel("Data Delimiter"),
+				dataDelimiter,
 			),
 		),
 		widget.NewLabel(""),

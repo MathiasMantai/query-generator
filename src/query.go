@@ -22,7 +22,7 @@ func sanitizeLineBreaks(value string) string {
 }
 
 //process data
-func Process(data string, query string, toInsertBefore string, toInsertAfter string, excludeLastElement bool, useAsIn bool, replaceDoubleQuotes bool) string {
+func Process(data string, query string, toInsertBefore string, toInsertAfter string, excludeLastElement bool, useAsIn bool, replaceDoubleQuotes bool, dataDelimiter string) string {
 	processed_data := ""
 
 	dataLines := strings.Split(data, "\n")
@@ -36,13 +36,31 @@ func Process(data string, query string, toInsertBefore string, toInsertAfter str
 			line := dataLines[i]
 			line = sanitizeLineBreaks(line)
 
-			if i < len(dataLines) - 1 {
-				line = InsertAfter(line, toInsertAfter)
+			var splitLine []string
+			//if delimiter is not empty we are working with multiple datacells per line
+			if strings.TrimSpace(dataDelimiter) != "" {
+				splitLine = strings.Split(line, dataDelimiter)
+				processedQuery := query
+				for _, dataCell := range splitLine {
+
+					processedDataCell := dataCell
+
+					processedDataCell = InsertAfter(processedDataCell, toInsertAfter)
+					processedDataCell = InsertBefore(processedDataCell, toInsertBefore)
+
+					processedQuery = strings.Replace(processedQuery, "?", processedDataCell, 1)
+                }
+				processed_data = processed_data + processedQuery + "\n"
+			} else {
+
+				if i < len(dataLines) - 1 {
+					line = InsertAfter(line, toInsertAfter)
+				}
+
+				line = InsertBefore(line, toInsertBefore)
+
+				processed_data = processed_data + strings.Replace(query, "?", line, 1) + "\n"
 			}
-
-			line = InsertBefore(line, toInsertBefore)
-
-			processed_data = processed_data + strings.Replace(query, "?", line, 1) + "\n"
 		}
 	} else {
 		//prepare data for in clause

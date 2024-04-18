@@ -17,8 +17,3 @@ fyne package -os windows
 fyne package -os linux
 fyne package -os macos
 ```
-
-### Compile without terminal
-```
-fyne package -os windows -ldflags -H=windowsgui
-```
