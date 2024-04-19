@@ -62,7 +62,7 @@ func main() {
 
 
 	//submit button to generate queries
-	submit := widget.NewButton("Generate Query", func() {
+	submit := widget.NewButton("Save to file", func() {
 		text := entry.Text
 		queryString := query.Text
 		toInsertBefore := insertBeforeInput.Text
@@ -100,7 +100,7 @@ func main() {
 
 
 	//process button to generate queries and display in output input field
-	processButton := widget.NewButton("Process Query", func() {
+	processButton := widget.NewButton("Preview query", func() {
 		text := entry.Text
 		queryString := query.Text
 		toInsertBefore := insertBeforeInput.Text
@@ -151,6 +151,8 @@ func main() {
 				dataDelimiter,
 			),
 		),
+
+		
 		widget.NewLabel(""),
         submit,
 		widget.NewLabel(""),
